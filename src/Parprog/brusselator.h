@@ -1,6 +1,7 @@
 #include "Common.h"
 #include <time.h>
 #include <stdlib.h>
+#include "f2c.h"
 
 #ifndef BRUSSELATOR_H
 #define BRUSSELATOR_H
@@ -293,9 +294,60 @@ double** get_matrix_J(node_t* nodes)
 	return result;
 }
 
-double** get_matrix_B(node_t* nodes, double tau)
+complex* get_matrix_B(node_t* nodes, double tau)
 {
+	complex multipler = { tau / 2, tau / 2 };
+	//multipler.i = tau / 2;
+	//multipler.r = tau / 2;
+	
+	//Memory allocation
+	complex* result = malloc(sizeof(complex*) * 4 * (K + 1) * (K+1));
+
+	double** J_real = get_matrix_J(nodes);
+	
+	int index = 0;
+	for (int i = 0; i < 2 * (K + 1); i++)
+	{
+		for (int j = 0; j < 2 * (K + 1); j++)
+		{
+			result[index].i = multipler.i * J_real[i][j];
+			result[index].r = multipler.r * J_real[i][j];
+			index++;
+		}
+	}
+
+	extern int aig4c_c(complex *a, integer *m, integer *n,
+		integer *nlead, complex *z__, integer *ierr);
+
+	integer m = 2 * (K + 1);
+	integer n = 2 * (K + 1);
+
+	//Сообщение об ошибке
+	integer ierr;
+	integer* nlead = malloc(sizeof(integer) * n);
+	complex* z__ = malloc(sizeof(complex)*n);
+	aig4c_c(result, &m, &n, nlead, z__, &ierr);
+
+
+	return result;
 	//Здесь i - по всей видимости, мнимая единица
 	//return E - (1+i)*tau*get_matrix_J(nodes)/2.0;
+}
+
+
+//Что такое f??
+//Предположим, это набор из 2K+1 чисел, которые мы вычислили заранее
+complex* calculate_K(complex* b_inverted, double* f)
+{
+	complex* result = malloc(sizeof(complex) * 2 * (K + 1));
+	for (int i = 0; i < 2*K+1; i++)
+	{
+		for (int j = 0; j < 2*K+1; j++)
+		{
+			int index = i*(2 * K + 1) + j;
+			result[i].r += f[i] * b_inverted[index].r;
+			result[i].i += f[i] * b_inverted[index].i;
+		}
+	}
 }
 #endif //BRUSSELATOR_H

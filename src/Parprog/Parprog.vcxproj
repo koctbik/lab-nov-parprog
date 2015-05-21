@@ -86,12 +86,17 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="f2c.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="some_maths.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AFG5C_C.C" />
+    <ClCompile Include="AIG4C_C.C" />
+    <ClCompile Include="AM11C_C.C" />
     <ClCompile Include="am11d.c" />
     <ClCompile Include="Functions.c" />
     <ClCompile Include="Parprog.c" />
+    <ClCompile Include="UTAFSI_C.C" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Parprog.rc" />
